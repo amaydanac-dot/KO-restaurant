@@ -192,7 +192,7 @@
   .float-bar .fb-left span{font-size:11px;opacity:0.8;}
   .float-bar .fb-right{font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;}
 
-  /* ---------- CART DRAWER (SIN BARRA DESLIZANTE INTERNA EN PLATOS) ---------- */
+  /* ---------- CART DRAWER ---------- */
   .overlay{
     position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:50;
     opacity:0;pointer-events:none;transition:opacity .25s;
@@ -203,10 +203,10 @@
     background:var(--bg-panel);z-index:51;
     transform:translateX(100%);transition:transform .3s ease;
     overflow-y:auto;
-    scrollbar-width:none; /* Oculta scrollbar en Firefox */
+    scrollbar-width:none;
     border-left:1px solid var(--line);
   }
-  .drawer::-webkit-scrollbar{display:none;} /* Oculta scrollbar en Chrome/Safari */
+  .drawer::-webkit-scrollbar{display:none;}
   .drawer.open{transform:translateX(0);}
   .drawer-head{
     padding:20px;border-bottom:1px dashed var(--line);
@@ -427,11 +427,12 @@ const MENU = [
     items:[
       {id:"yak-clasico", name:"Yakimeshi Clásico", desc:"Arroz con verduras y carne de cerdo salteados.", price:42},
       {id:"yak-veg", name:"Yakimeshi Vegetariano", desc:"Arroz con verduras y tofu con huevo salteado.", price:36},
-      {id:"yak-mar", name:"Yakimeshi de Mar", desc:"Arroz con verduras y carne de pollo salteado.", price:48},
-      {id:"soba-clasico", name:"Yakisoba Clásico", desc:"Fideos salteados con verduras y carne de cerdo marinado.", price:45},
+      {id:"yak-mar", name:"Yakimeshi de Mar", desc:"Arroz con verduras con mariscos (Calamar y camarón)", price:48},
+      {id:"soba-clasico", name:"Yakisoba Clásico", desc:"Fideos salteados con verduras y carne de cerdo marinado.", price:42},
       {id:"soba-veg", name:"Yakisoba Vegetariano", desc:"Fideos salteados con tofu o carne de soya.", price:38},
-      {id:"soba-pollo", name:"Yakisoba de Pollo", desc:"Fideos salteados con verduras y carne de pollo salteados con sésamo.", price:50},
-      {id:"chahan", name:"Arroz Frito Japonés (Chāhan)", desc:"Arroz salteado con huevo y tofu con sésamo.", price:35}
+      {id:"soba-pollo", name:"Yakisoba de Pollo", desc:"Fideos salteados con verduras y carne de pollo", price:32},
+      {id:"soba-mar", name:"Yakisoba de Mar", desc:"Fideos salteados con verduras y mariscos (Calamar y camarón).", price:42},
+      {id:"chahan", name:"Arroz Frito Japonés (Chāhan)", desc:"Arroz salteado con huevo y tofu.", price:35}
     ]
   },
   {
@@ -439,9 +440,9 @@ const MENU = [
     title:"Bebidas",
     desc:"Refrescos naturales y gasificados bien fríos.",
     items:[
-      {id:"ref-frutilla", name:"Refresco de Frutilla", desc:"Frutillas en almíbar y agua con gas.", price:15},
-      {id:"ref-pina", name:"Refresco de Piña", desc:"Piña en almíbar y agua con gas.", price:15},
-      {id:"ref-muchiga", name:"Refresco de Muchiga", desc:"Refresco tradicional bien frío, dulce y refrescante.", price:20}
+      {id:"ref-frutilla", name:"Refresco de Frutilla", desc:"Frutillas en almíbar y agua con gas.", price:20},
+      {id:"ref-pina", name:"Refresco de Piña", desc:"Piña en almíbar y agua con gas.", price:20},
+      {id:"ref-muchiga", name:"Refresco de Muchiga", desc:"Refresco tradicional de cebada tostada, dulce, frio y refrescante.", price:20}
     ]
   }
 ];
@@ -632,7 +633,6 @@ document.getElementById("deliveryGroup").addEventListener("click", (e)=>{
 /* ============ GENERADOR DE PDF TÉRMICO (ESTILO POS / NCR 80MM) ============ */
 function generateThermalPDF(order){
   const { jsPDF } = window.jspdf;
-  // Calculamos la altura dinámica según cantidad de líneas para que parezca rollo continuo
   const baseHeight = 95;
   const itemsHeight = order.items.length * 8;
   const notesHeight = order.notes ? 14 : 0;
@@ -641,7 +641,7 @@ function generateThermalPDF(order){
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
-    format: [80, docHeight] // 80mm estándar de impresora térmica NCR/POS
+    format: [80, docHeight]
   });
 
   doc.setFont("courier", "bold");
@@ -734,7 +734,6 @@ document.getElementById("checkoutForm").addEventListener("submit", (e)=>{
 
   lastOrderData = orderData;
 
-  // Rellenar modal visual
   document.getElementById("ticketNumber").textContent = `ORDEN #${orderData.orderNum} · ${orderData.timeStr}`;
   
   let metaHTML = `
@@ -757,7 +756,6 @@ document.getElementById("checkoutForm").addEventListener("submit", (e)=>{
   document.getElementById("ticketItems").innerHTML = itemsHTML;
   document.getElementById("ticketTotal").textContent = fmt(orderData.total);
 
-  // Generar y descargar el PDF térmico automáticamente
   generateThermalPDF(orderData);
 
   closeCart();
