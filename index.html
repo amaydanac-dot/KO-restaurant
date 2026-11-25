@@ -7,7 +7,6 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='8' y1='56' x2='56' y2='8' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0%25' stop-color='%23e8341c'/%3E%3Cstop offset='100%25' stop-color='%23f5a623'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='30' fill='%23161210' stroke='url(%23g)' stroke-width='4'/%3E%3Cpath d='M32 13C32 13 39 20.5 39 26.5C39 30.366 35.866 33.5 32 33.5C28.134 33.5 25 30.366 25 26.5C25 23.8 26.5 21 28 19.5C28 22 29.5 23.2 30.8 23.2C30.2 19.5 32 13 32 13Z' fill='url(%23g)'/%3E%3Cpath d='M16 37H48C48 44.732 40.8366 50 32 50C23.1634 50 16 44.732 16 37Z' fill='%23f4efe6'/%3E%3Cpath d='M10 35.5L16.5 37.5M54 35.5L47.5 37.5' stroke='%23d9a441' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- Librería jsPDF para generar el ticket PDF térmico directamente en el navegador -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root{
@@ -55,13 +54,40 @@
   }
   .header-inner{
     max-width:1100px;margin:0 auto;
-    display:flex;align-items:center;justify-content:center;
+    display:flex;align-items:center;justify-content:space-between;
     padding:12px 20px;
   }
+  .header-spacer{width:110px;}
   .brand{display:flex;align-items:center;gap:12px;}
   .brand-logo{height:42px;width:42px;flex-shrink:0;}
   .brand-name{font-size:22px;font-weight:600;letter-spacing:0.08em;}
   .brand-sub{font-size:9px;color:var(--muted);letter-spacing:0.18em;text-transform:uppercase;margin-top:-2px;}
+
+  /* ---------- LANGUAGE SWITCHER ---------- */
+  .lang-switcher{
+    display:flex;align-items:center;gap:4px;
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:3px;
+  }
+  .lang-btn{
+    background:transparent;
+    border:none;
+    color:var(--muted);
+    font-size:11.5px;
+    font-weight:700;
+    padding:5px 10px;
+    border-radius:999px;
+    cursor:pointer;
+    letter-spacing:0.05em;
+    transition:all .2s ease;
+  }
+  .lang-btn:hover{color:var(--cream);}
+  .lang-btn.active{
+    background:linear-gradient(90deg,var(--ember-1),var(--ember-2));
+    color:#1a0e05;
+  }
 
   /* ---------- HERO ---------- */
   .hero{
@@ -115,7 +141,7 @@
   }
 
   /* ---------- CATEGORY TABS ---------- */
-  .tabs-wrap{position:sticky;top:66px;z-index:30;background:var(--bg);padding:14px 20px;border-bottom:1px solid var(--line);}
+  .tabs-wrap{position:sticky;top:67px;z-index:30;background:var(--bg);padding:14px 20px;border-bottom:1px solid var(--line);}
   .tabs{max-width:1100px;margin:0 auto;display:flex;gap:10px;overflow-x:auto;padding-bottom:2px;}
   .tab{
     flex:none;
@@ -288,7 +314,9 @@
   footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;color:var(--muted);font-size:12px;letter-spacing:0.03em;}
 
   @media(max-width:640px){
+    .header-spacer{display:none;}
     .float-bar{left:14px;right:14px;bottom:14px;}
+    .lang-btn{padding:4px 8px;font-size:11px;}
   }
 </style>
 </head>
@@ -296,6 +324,7 @@
 
 <header>
   <div class="header-inner">
+    <div class="header-spacer" aria-hidden="true"></div>
     <div class="brand">
       <svg class="brand-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo KO">
         <defs>
@@ -313,21 +342,27 @@
       </svg>
       <div>
         <div class="brand-name">K<span class="ember-text">O</span></div>
-        <div class="brand-sub">Salteados Japoneses</div>
+        <div class="brand-sub" id="brandSub">Salteados Japoneses</div>
       </div>
+    </div>
+
+    <div class="lang-switcher" role="group" aria-label="Selector de idioma">
+      <button type="button" class="lang-btn active" data-lang="es" onclick="setLanguage('es')">ES</button>
+      <button type="button" class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+      <button type="button" class="lang-btn" data-lang="fr" onclick="setLanguage('fr')">FR</button>
     </div>
   </div>
 </header>
 
 <section class="hero">
   <div class="hero-inner">
-    <div class="eyebrow">Fuego y sabor al instante</div>
-    <h1>SALTEADOS<br><span class="ember-text">AL WOK</span></h1>
-    <p>Armá tu pedido aquí mismo y envialo directo a nuestra cocina. Al confirmar, se generará automáticamente tu ticket PDF de orden listo para impresora térmica o caja.</p>
+    <div class="eyebrow" id="heroEyebrow">Fuego y sabor al instante</div>
+    <h1 id="heroTitle">SALTEADOS<br><span class="ember-text">AL WOK</span></h1>
+    <p id="heroDesc">Armá tu pedido aquí mismo y envialo directo a nuestra cocina. Al confirmar, se generará automáticamente tu ticket PDF de orden listo para impresora térmica o caja.</p>
     <div class="hero-cta">
-      <button class="btn-primary" onclick="scrollToMenu()">Ver el menú</button>
+      <button class="btn-primary" id="btnViewMenu" onclick="scrollToMenu()">Ver el menú</button>
       <button class="btn-secondary" onclick="openCart()">
-        Mi pedido <span class="cart-count" id="heroCount">0</span>
+        <span id="btnMyOrder">Mi pedido</span> <span class="cart-count" id="heroCount">0</span>
       </button>
     </div>
     <div class="flame-rule"></div>
@@ -345,7 +380,7 @@
 <div class="float-bar" id="floatBar" onclick="openCart()">
   <div class="fb-left">
     <b id="fbItems">0 productos</b>
-    <span>Toca para ver tu orden</span>
+    <span id="fbSub">Toca para ver tu orden</span>
   </div>
   <div class="fb-right"><span id="fbTotal">0 Bs</span> →</div>
 </div>
@@ -353,37 +388,35 @@
 <div class="overlay" id="overlay" onclick="closeCart()"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
-    <h3>Tu orden</h3>
+    <h3 id="drawerTitle">Tu orden</h3>
     <button class="drawer-close" onclick="closeCart()">✕</button>
   </div>
-  <div class="drawer-body" id="cartBody">
-    <div class="ticket-empty">Todavía no agregaste nada.<br>Elegí algo rico del menú 🔥</div>
-  </div>
+  <div class="drawer-body" id="cartBody"></div>
   <div class="drawer-foot" id="drawerFoot" style="display:none;">
-    <div class="totals-row"><span>Subtotal</span><span id="subtotal">0 Bs</span></div>
-    <div class="totals-row total"><span>Total</span><span id="total">0 Bs</span></div>
+    <div class="totals-row"><span id="lblSubtotal">Subtotal</span><span id="subtotal">0 Bs</span></div>
+    <div class="totals-row total"><span id="lblTotal">Total</span><span id="total">0 Bs</span></div>
 
     <form class="checkout" id="checkoutForm">
       <div class="field">
-        <label>Nombre</label>
+        <label id="lblName">Nombre</label>
         <input type="text" id="custName" required placeholder="Tu nombre">
       </div>
       <div class="field">
-        <label>¿Dónde vas a disfrutar tu pedido?</label>
+        <label id="lblDelivery">¿Dónde vas a disfrutar tu pedido?</label>
         <div class="radio-group" id="deliveryGroup">
-          <div class="radio-opt active" data-val="En el local">En el local</div>
-          <div class="radio-opt" data-val="Envío a domicilio">Envío a domicilio</div>
+          <div class="radio-opt active" data-type="local" id="optLocal">En el local</div>
+          <div class="radio-opt" data-type="delivery" id="optDelivery">Envío a domicilio</div>
         </div>
       </div>
       <div class="field" id="addressField">
-        <label>Número de mesa (o para llevar)</label>
+        <label id="lblAddress">Número de mesa (o para llevar)</label>
         <input type="text" id="custAddress" placeholder="Ej: Mesa 4 / Para llevar">
       </div>
       <div class="field">
-        <label>Notas para cocina (opcional)</label>
+        <label id="lblNotes">Notas para cocina (opcional)</label>
         <textarea id="custNotes" placeholder="Ej: sin cebolla, poca sal..."></textarea>
       </div>
-      <button type="submit" class="btn-send">Confirmar orden y generar ticket</button>
+      <button type="submit" class="btn-send" id="btnSubmitOrder">Confirmar orden y generar ticket</button>
     </form>
   </div>
 </aside>
@@ -392,114 +425,411 @@
 <div class="modal" id="ticketModal">
   <div class="ticket-box">
     <div class="ticket-header">
-      <h3>KO — SALTEADOS JAPONESES</h3>
-      <p>COMANDA DE COCINA / TICKET POS</p>
+      <h3 id="tktBrand">KO — SALTEADOS JAPONESES</h3>
+      <p id="tktSub">COMANDA DE COCINA / TICKET POS</p>
       <p id="ticketNumber">ORDEN #0000</p>
     </div>
     <div class="ticket-meta" id="ticketMeta"></div>
     <div class="ticket-items" id="ticketItems"></div>
     <div class="ticket-total">
-      <span>TOTAL</span>
+      <span id="tktTotalLbl">TOTAL</span>
       <span id="ticketTotal">0 Bs</span>
     </div>
-    <div class="ticket-footer-msg">
+    <div class="ticket-footer-msg" id="tktFooterMsg">
       *** GRACIAS POR SU PREFERENCIA ***<br>
       PDF descargado automáticamente
     </div>
     <div class="ticket-actions">
       <button class="btn-print" id="btnReprintPdf">⬇ Descargar PDF</button>
-      <button class="btn-done" onclick="finishOrder()">Nueva orden</button>
+      <button class="btn-done" id="btnNewOrder" onclick="finishOrder()">Nueva orden</button>
     </div>
   </div>
 </div>
 
-<footer>
+<footer id="footerText">
   KO — Salteados Japoneses · El arte del fuego y la tradición en cada wok.
 </footer>
 
 <script>
+/* ============ TRANSLATIONS ============ */
+const I18N = {
+  es: {
+    pageTitle: "KO — Salteados Japoneses",
+    brandSub: "Salteados Japoneses",
+    heroEyebrow: "Fuego y sabor al instante",
+    heroTitle: 'SALTEADOS<br><span class="ember-text">AL WOK</span>',
+    heroDesc: "Armá tu pedido aquí mismo y envialo directo a nuestra cocina. Al confirmar, se generará automáticamente tu ticket PDF de orden listo para impresora térmica o caja.",
+    btnViewMenu: "Ver el menú",
+    btnMyOrder: "Mi pedido",
+    addBtn: "Agregar",
+    productSingle: "producto",
+    productPlural: "productos",
+    fbSub: "Toca para ver tu orden",
+    drawerTitle: "Tu orden",
+    emptyCart: "Todavía no agregaste nada.<br>Elegí algo rico del menú 🔥",
+    unitEach: "c/u",
+    removeBtn: "Quitar",
+    subtotal: "Subtotal",
+    total: "Total",
+    lblName: "Nombre",
+    phName: "Tu nombre",
+    lblDelivery: "¿Dónde vas a disfrutar tu pedido?",
+    optLocal: "En el local",
+    optDelivery: "Envío a domicilio",
+    lblAddressLocal: "Número de mesa (o para llevar)",
+    phAddressLocal: "Ej: Mesa 4 / Para llevar",
+    lblAddressDelivery: "Dirección de envío",
+    phAddressDelivery: "Ej: Av. Arce #1234, Zona Sopocachi",
+    lblNotes: "Notas para cocina (opcional)",
+    phNotes: "Ej: sin cebolla, poca sal...",
+    btnSubmit: "Confirmar orden y generar ticket",
+    tktBrand: "KO — SALTEADOS JAPONESES",
+    tktSub: "COMANDA DE COCINA / TICKET POS",
+    tktOrder: "ORDEN",
+    tktClient: "CLIENTE",
+    tktMode: "MODALIDAD",
+    tktDetail: "DETALLE",
+    tktNotes: "NOTAS",
+    tktTotalLbl: "TOTAL",
+    tktFooterMsg: "*** GRACIAS POR SU PREFERENCIA ***<br>PDF descargado automáticamente",
+    btnDownloadPdf: "⬇ Descargar PDF",
+    btnNewOrder: "Nueva orden",
+    footerText: "KO — Salteados Japoneses · El arte del fuego y la tradición en cada wok.",
+    pdfBrand: "KO - SALTEADOS JAPONESES",
+    pdfSub: "COMANDA DE COCINA / TICKET POS",
+    pdfOrder: "ORDEN",
+    pdfDate: "FECHA",
+    pdfTime: "HORA",
+    pdfClient: "CLIENTE",
+    pdfMode: "MODALIDAD",
+    pdfDetail: "DETALLE",
+    pdfColQty: "CANT",
+    pdfColDesc: "DESCRIPCION",
+    pdfColAmt: "IMPORTE",
+    pdfTotalPay: "TOTAL A PAGAR:",
+    pdfNotes: "NOTAS",
+    pdfThanks: "GRACIAS POR SU PREFERENCIA",
+    sections: {
+      salteados: { title: "Salteados al Wok", desc: "Yakimeshi, yakisoba y arroz frito, salteados al momento." },
+      bebidas: { title: "Bebidas", desc: "Refrescos naturales y gasificados bien fríos." }
+    },
+    items: {
+      "yak-clasico": { name: "Yakimeshi Clásico", desc: "Arroz con verduras y carne de cerdo salteados." },
+      "yak-veg": { name: "Yakimeshi Vegetariano", desc: "Arroz con verduras y tofu con huevo salteado." },
+      "yak-mar": { name: "Yakimeshi de Mar", desc: "Arroz con verduras con mariscos (Calamar y camarón)" },
+      "soba-clasico": { name: "Yakisoba Clásico", desc: "Fideos salteados con verduras y carne de cerdo marinado." },
+      "soba-veg": { name: "Yakisoba Vegetariano", desc: "Fideos salteados con tofu o carne de soya." },
+      "soba-pollo": { name: "Yakisoba de Pollo", desc: "Fideos salteados con verduras y carne de pollo" },
+      "soba-mar": { name: "Yakisoba de Mar", desc: "Fideos salteados con verduras y mariscos (Calamar y camarón)." },
+      "chahan": { name: "Arroz Frito Japonés (Chāhan)", desc: "Arroz salteado con huevo y tofu." },
+      "ref-frutilla": { name: "Refresco de Frutilla", desc: "Frutillas en almíbar y agua con gas." },
+      "ref-pina": { name: "Refresco de Piña", desc: "Piña en almíbar y agua con gas." },
+      "ref-muchiga": { name: "Refresco de Muchiga", desc: "Refresco tradicional de cebada tostada, dulce, frio y refrescante." }
+    }
+  },
+  en: {
+    pageTitle: "KO — Japanese Stir-Fry",
+    brandSub: "Japanese Stir-Fry",
+    heroEyebrow: "Instant fire and flavor",
+    heroTitle: 'WOK<br><span class="ember-text">STIR-FRY</span>',
+    heroDesc: "Build your order right here and send it straight to our kitchen. Upon confirmation, your PDF order ticket will automatically generate for thermal printers or checkout.",
+    btnViewMenu: "View menu",
+    btnMyOrder: "My order",
+    addBtn: "Add",
+    productSingle: "item",
+    productPlural: "items",
+    fbSub: "Tap to view your order",
+    drawerTitle: "Your order",
+    emptyCart: "You haven't added anything yet.<br>Pick something delicious from the menu 🔥",
+    unitEach: "each",
+    removeBtn: "Remove",
+    subtotal: "Subtotal",
+    total: "Total",
+    lblName: "Name",
+    phName: "Your name",
+    lblDelivery: "Where will you enjoy your order?",
+    optLocal: "Dine-in / Pickup",
+    optDelivery: "Home delivery",
+    lblAddressLocal: "Table number (or takeout)",
+    phAddressLocal: "Ex: Table 4 / Takeout",
+    lblAddressDelivery: "Delivery address",
+    phAddressDelivery: "Ex: 1234 Arce Ave, Sopocachi",
+    lblNotes: "Kitchen notes (optional)",
+    phNotes: "Ex: no onions, low salt...",
+    btnSubmit: "Confirm order & generate ticket",
+    tktBrand: "KO — JAPANESE STIR-FRY",
+    tktSub: "KITCHEN ORDER / POS TICKET",
+    tktOrder: "ORDER",
+    tktClient: "CUSTOMER",
+    tktMode: "SERVICE",
+    tktDetail: "DETAILS",
+    tktNotes: "NOTES",
+    tktTotalLbl: "TOTAL",
+    tktFooterMsg: "*** THANK YOU FOR YOUR ORDER ***<br>PDF downloaded automatically",
+    btnDownloadPdf: "⬇ Download PDF",
+    btnNewOrder: "New order",
+    footerText: "KO — Japanese Stir-Fry · The art of fire and tradition in every wok.",
+    pdfBrand: "KO - JAPANESE STIR-FRY",
+    pdfSub: "KITCHEN ORDER / POS TICKET",
+    pdfOrder: "ORDER",
+    pdfDate: "DATE",
+    pdfTime: "TIME",
+    pdfClient: "CUSTOMER",
+    pdfMode: "SERVICE",
+    pdfDetail: "DETAILS",
+    pdfColQty: "QTY",
+    pdfColDesc: "DESCRIPTION",
+    pdfColAmt: "AMOUNT",
+    pdfTotalPay: "TOTAL DUE:",
+    pdfNotes: "NOTES",
+    pdfThanks: "THANK YOU FOR YOUR ORDER",
+    sections: {
+      salteados: { title: "Wok Stir-Fries", desc: "Yakimeshi, yakisoba, and fried rice, stir-fried fresh to order." },
+      bebidas: { title: "Drinks", desc: "Ice-cold natural and sparkling refreshments." }
+    },
+    items: {
+      "yak-clasico": { name: "Classic Yakimeshi", desc: "Stir-fried rice with vegetables and pork." },
+      "yak-veg": { name: "Vegetarian Yakimeshi", desc: "Stir-fried rice with vegetables, tofu, and egg." },
+      "yak-mar": { name: "Seafood Yakimeshi", desc: "Stir-fried rice with vegetables and seafood (squid and shrimp)." },
+      "soba-clasico": { name: "Classic Yakisoba", desc: "Stir-fried noodles with vegetables and marinated pork." },
+      "soba-veg": { name: "Vegetarian Yakisoba", desc: "Stir-fried noodles with tofu or soy meat." },
+      "soba-pollo": { name: "Chicken Yakisoba", desc: "Stir-fried noodles with vegetables and chicken." },
+      "soba-mar": { name: "Seafood Yakisoba", desc: "Stir-fried noodles with vegetables and seafood (squid and shrimp)." },
+      "chahan": { name: "Japanese Fried Rice (Chāhan)", desc: "Stir-fried rice with egg and tofu." },
+      "ref-frutilla": { name: "Strawberry Refresher", desc: "Strawberries in syrup with sparkling water." },
+      "ref-pina": { name: "Pineapple Refresher", desc: "Pineapple in syrup with sparkling water." },
+      "ref-muchiga": { name: "Muchiga Refresher", desc: "Traditional roasted barley drink, sweet, cold, and refreshing." }
+    }
+  },
+  fr: {
+    pageTitle: "KO — Sautés Japonais",
+    brandSub: "Sautés Japonais",
+    heroEyebrow: "Feu et saveur à l'instant",
+    heroTitle: 'SAUTÉS<br><span class="ember-text">AU WOK</span>',
+    heroDesc: "Composez votre commande ici et envoyez-la directement à notre cuisine. Dès confirmation, votre ticket PDF sera généré automatiquement pour l'imprimante thermique ou la caisse.",
+    btnViewMenu: "Voir le menu",
+    btnMyOrder: "Ma commande",
+    addBtn: "Ajouter",
+    productSingle: "article",
+    productPlural: "articles",
+    fbSub: "Appuyez pour voir votre commande",
+    drawerTitle: "Votre commande",
+    emptyCart: "Vous n'avez encore rien ajouté.<br>Choisissez un plat savoureux au menu 🔥",
+    unitEach: "l'unité",
+    removeBtn: "Retirer",
+    subtotal: "Sous-total",
+    total: "Total",
+    lblName: "Nom",
+    phName: "Votre nom",
+    lblDelivery: "Où souhaitez-vous déguster votre commande ?",
+    optLocal: "Sur place / À emporter",
+    optDelivery: "Livraison à domicile",
+    lblAddressLocal: "Numéro de table (ou à emporter)",
+    phAddressLocal: "Ex : Table 4 / À emporter",
+    lblAddressDelivery: "Adresse de livraison",
+    phAddressDelivery: "Ex : Av. Arce #1234, Sopocachi",
+    lblNotes: "Notes pour la cuisine (optionnel)",
+    phNotes: "Ex : sans oignon, peu salé...",
+    btnSubmit: "Confirmer et générer le ticket",
+    tktBrand: "KO — SAUTÉS JAPONAIS",
+    tktSub: "BON DE CUISINE / TICKET POS",
+    tktOrder: "COMMANDE",
+    tktClient: "CLIENT",
+    tktMode: "MODE",
+    tktDetail: "DÉTAIL",
+    tktNotes: "NOTES",
+    tktTotalLbl: "TOTAL",
+    tktFooterMsg: "*** MERCI DE VOTRE VISITE ***<br>PDF téléchargé automatiquement",
+    btnDownloadPdf: "⬇ Télécharger PDF",
+    btnNewOrder: "Nouvelle commande",
+    footerText: "KO — Sautés Japonais · L'art du feu et de la tradition dans chaque wok.",
+    pdfBrand: "KO - SAUTES JAPONAIS",
+    pdfSub: "BON DE CUISINE / TICKET POS",
+    pdfOrder: "COMMANDE",
+    pdfDate: "DATE",
+    pdfTime: "HEURE",
+    pdfClient: "CLIENT",
+    pdfMode: "MODE",
+    pdfDetail: "DETAIL",
+    pdfColQty: "QTE",
+    pdfColDesc: "DESCRIPTION",
+    pdfColAmt: "MONTANT",
+    pdfTotalPay: "TOTAL A PAYER :",
+    pdfNotes: "NOTES",
+    pdfThanks: "MERCI DE VOTRE VISITE",
+    sections: {
+      salteados: { title: "Sautés au Wok", desc: "Yakimeshi, yakisoba et riz sauté, préparés à la minute." },
+      bebidas: { title: "Boissons", desc: "Boissons fraîches naturelles et pétillantes bien glacées." }
+    },
+    items: {
+      "yak-clasico": { name: "Yakimeshi Classique", desc: "Riz sauté aux légumes et viande de porc." },
+      "yak-veg": { name: "Yakimeshi Végétarien", desc: "Riz sauté aux légumes, tofu et œuf." },
+      "yak-mar": { name: "Yakimeshi de la Mer", desc: "Riz sauté aux légumes et fruits de mer (calamar et crevettes)." },
+      "soba-clasico": { name: "Yakisoba Classique", desc: "Nouilles sautées aux légumes et porc mariné." },
+      "soba-veg": { name: "Yakisoba Végétarien", desc: "Nouilles sautées au tofu ou protéines de soja." },
+      "soba-pollo": { name: "Yakisoba au Poulet", desc: "Nouilles sautées aux légumes et poulet." },
+      "soba-mar": { name: "Yakisoba de la Mer", desc: "Nouilles sautées aux légumes et fruits de mer (calamar et crevettes)." },
+      "chahan": { name: "Riz Sauté Japonais (Chāhan)", desc: "Riz sauté aux œufs et au tofu." },
+      "ref-frutilla": { name: "Boisson Fraîche Fraise", desc: "Fraises au sirop et eau pétillante." },
+      "ref-pina": { name: "Boisson Fraîche Ananas", desc: "Ananas au sirop et eau pétillante." },
+      "ref-muchiga": { name: "Boisson Fraîche Muchiga", desc: "Boisson traditionnelle à l'orge grillée, douce, froide et rafraîchissante." }
+    }
+  }
+};
+
 /* ============ MENU DATA ============ */
 const MENU = [
   {
     id:"salteados",
-    title:"Salteados al Wok",
-    desc:"Yakimeshi, yakisoba y arroz frito, salteados al momento.",
     items:[
-      {id:"yak-clasico", name:"Yakimeshi Clásico", desc:"Arroz con verduras y carne de cerdo salteados.", price:34},
-      {id:"yak-veg", name:"Yakimeshi Vegetariano", desc:"Arroz con verduras y tofu con huevo salteado.", price:30},
-      {id:"yak-mar", name:"Yakimeshi de Mar", desc:"Arroz con verduras con mariscos (Calamar y camarón)", price:33},
-      {id:"soba-clasico", name:"Yakisoba Clásico", desc:"Fideos salteados con verduras y carne de cerdo marinado.", price:37},
-      {id:"soba-veg", name:"Yakisoba Vegetariano", desc:"Fideos salteados con tofu o carne de soya.", price:38},
-      {id:"soba-pollo", name:"Yakisoba de Pollo", desc:"Fideos salteados con verduras y carne de pollo", price:33},
-      {id:"soba-mar", name:"Yakisoba de Mar", desc:"Fideos salteados con verduras y mariscos (Calamar y camarón).", price:38},
-      {id:"chahan", name:"Arroz Frito Japonés (Chāhan)", desc:"Arroz salteado con huevo y tofu.", price:30}
+      {id:"yak-clasico", price:34},
+      {id:"yak-veg", price:30},
+      {id:"yak-mar", price:33},
+      {id:"soba-clasico", price:37},
+      {id:"soba-veg", price:38},
+      {id:"soba-pollo", price:33},
+      {id:"soba-mar", price:38},
+      {id:"chahan", price:30}
     ]
   },
   {
     id:"bebidas",
-    title:"Bebidas",
-    desc:"Refrescos naturales y gasificados bien fríos.",
     items:[
-      {id:"ref-frutilla", name:"Refresco de Frutilla", desc:"Frutillas en almíbar y agua con gas.", price:20},
-      {id:"ref-pina", name:"Refresco de Piña", desc:"Piña en almíbar y agua con gas.", price:20},
-      {id:"ref-muchiga", name:"Refresco de Muchiga", desc:"Refresco tradicional de cebada tostada, dulce, frio y refrescante.", price:20}
+      {id:"ref-frutilla", price:20},
+      {id:"ref-pina", price:20},
+      {id:"ref-muchiga", price:20}
     ]
   }
 ];
 
 /* ============ STATE ============ */
+let currentLang = "es";
+let activeTabIndex = 0;
 let cart = {};
-let deliveryType = "En el local";
+let deliveryMode = "local"; // 'local' | 'delivery'
 let lastOrderData = null;
+
+function t(){
+  return I18N[currentLang];
+}
+
+/* ============ LANGUAGE SWITCHING ============ */
+function setLanguage(lang){
+  if(!I18N[lang]) return;
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.title = t().pageTitle;
+
+  document.querySelectorAll(".lang-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.lang === lang);
+  });
+
+  // Static texts
+  document.getElementById("brandSub").textContent = t().brandSub;
+  document.getElementById("heroEyebrow").textContent = t().heroEyebrow;
+  document.getElementById("heroTitle").innerHTML = t().heroTitle;
+  document.getElementById("heroDesc").textContent = t().heroDesc;
+  document.getElementById("btnViewMenu").textContent = t().btnViewMenu;
+  document.getElementById("btnMyOrder").textContent = t().btnMyOrder;
+  document.getElementById("fbSub").textContent = t().fbSub;
+  document.getElementById("drawerTitle").textContent = t().drawerTitle;
+  document.getElementById("lblSubtotal").textContent = t().subtotal;
+  document.getElementById("lblTotal").textContent = t().total;
+  document.getElementById("lblName").textContent = t().lblName;
+  document.getElementById("custName").placeholder = t().phName;
+  document.getElementById("lblDelivery").textContent = t().lblDelivery;
+  document.getElementById("optLocal").textContent = t().optLocal;
+  document.getElementById("optDelivery").textContent = t().optDelivery;
+  document.getElementById("lblNotes").textContent = t().lblNotes;
+  document.getElementById("custNotes").placeholder = t().phNotes;
+  document.getElementById("btnSubmitOrder").textContent = t().btnSubmit;
+  document.getElementById("tktBrand").textContent = t().tktBrand;
+  document.getElementById("tktSub").textContent = t().tktSub;
+  document.getElementById("tktTotalLbl").textContent = t().tktTotalLbl;
+  document.getElementById("tktFooterMsg").innerHTML = t().tktFooterMsg;
+  document.getElementById("btnReprintPdf").textContent = t().btnDownloadPdf;
+  document.getElementById("btnNewOrder").textContent = t().btnNewOrder;
+  document.getElementById("footerText").textContent = t().footerText;
+
+  updateAddressFieldLabels();
+  renderMenu();
+  renderCart();
+}
+
+function updateAddressFieldLabels(){
+  const addrField = document.getElementById("addressField");
+  const addrLabel = addrField.querySelector("label");
+  const addrInput = document.getElementById("custAddress");
+
+  if(deliveryMode === "delivery"){
+    addrLabel.textContent = t().lblAddressDelivery;
+    addrInput.placeholder = t().phAddressDelivery;
+    addrInput.required = true;
+  } else {
+    addrLabel.textContent = t().lblAddressLocal;
+    addrInput.placeholder = t().phAddressLocal;
+    addrInput.required = false;
+  }
+}
 
 /* ============ RENDER MENU ============ */
 const tabsEl = document.getElementById("tabs");
 const sectionsEl = document.getElementById("menuSections");
 
-MENU.forEach((section, i) => {
-  const tab = document.createElement("button");
-  tab.className = "tab" + (i===0 ? " active" : "");
-  tab.textContent = section.title;
-  tab.onclick = () => {
-    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-    tab.classList.add("active");
-    document.getElementById("sec-"+section.id).scrollIntoView({behavior:"smooth", block:"start"});
-  };
-  tabsEl.appendChild(tab);
+function renderMenu(){
+  tabsEl.innerHTML = "";
+  sectionsEl.innerHTML = "";
 
-  const sec = document.createElement("div");
-  sec.className = "menu-section";
-  sec.id = "sec-"+section.id;
-  sec.innerHTML = `
-    <h2>${section.title}</h2>
-    <div class="section-desc">${section.desc}</div>
-    <div class="items-grid" id="grid-${section.id}"></div>
-  `;
-  sectionsEl.appendChild(sec);
+  MENU.forEach((section, i) => {
+    const secTrans = t().sections[section.id];
 
-  const grid = sec.querySelector(".items-grid");
-  section.items.forEach(item => {
-    const card = document.createElement("div");
-    card.className = "item-card";
-    card.id = "card-"+item.id;
-    card.innerHTML = `
-      <div class="item-top">
-        <div class="item-name">${item.name}</div>
-        <div class="item-price">${fmt(item.price)}</div>
-      </div>
-      <div class="item-desc">${item.desc}</div>
-      <div class="item-bottom" id="ctrl-${item.id}"></div>
+    const tab = document.createElement("button");
+    tab.className = "tab" + (i === activeTabIndex ? " active" : "");
+    tab.textContent = secTrans.title;
+    tab.onclick = () => {
+      activeTabIndex = i;
+      document.querySelectorAll(".tab").forEach(tb => tb.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById("sec-" + section.id).scrollIntoView({behavior:"smooth", block:"start"});
+    };
+    tabsEl.appendChild(tab);
+
+    const sec = document.createElement("div");
+    sec.className = "menu-section";
+    sec.id = "sec-" + section.id;
+    sec.innerHTML = `
+      <h2>${secTrans.title}</h2>
+      <div class="section-desc">${secTrans.desc}</div>
+      <div class="items-grid" id="grid-${section.id}"></div>
     `;
-    grid.appendChild(card);
-    renderControl(item);
+    sectionsEl.appendChild(sec);
+
+    const grid = sec.querySelector(".items-grid");
+    section.items.forEach(item => {
+      const itemTrans = t().items[item.id];
+      const card = document.createElement("div");
+      card.className = "item-card";
+      card.id = "card-" + item.id;
+      card.innerHTML = `
+        <div class="item-top">
+          <div class="item-name">${itemTrans.name}</div>
+          <div class="item-price">${fmt(item.price)}</div>
+        </div>
+        <div class="item-desc">${itemTrans.desc}</div>
+        <div class="item-bottom" id="ctrl-${item.id}"></div>
+      `;
+      grid.appendChild(card);
+      renderControl(item);
+    });
   });
-});
+}
 
 function renderControl(item){
-  const el = document.getElementById("ctrl-"+item.id);
+  const el = document.getElementById("ctrl-" + item.id);
+  if(!el) return;
   const qty = cart[item.id] ? cart[item.id].qty : 0;
   if(qty === 0){
-    el.innerHTML = `<button class="qty-add" onclick="addItem('${item.id}')">Agregar</button>`;
+    el.innerHTML = `<button class="qty-add" onclick="addItem('${item.id}')">${t().addBtn}</button>`;
   } else {
     el.innerHTML = `
       <div class="qty-stepper">
@@ -511,7 +841,7 @@ function renderControl(item){
 }
 
 function findItem(id){
-  for(const s of MENU){ for(const it of s.items){ if(it.id===id) return it; } }
+  for(const s of MENU){ for(const it of s.items){ if(it.id === id) return it; } }
 }
 
 function addItem(id){
@@ -524,7 +854,7 @@ function addItem(id){
 function decItem(id){
   if(!cart[id]) return;
   cart[id].qty--;
-  if(cart[id].qty<=0) delete cart[id];
+  if(cart[id].qty <= 0) delete cart[id];
   renderControl(findItem(id));
   renderCart();
 }
@@ -539,10 +869,10 @@ function fmt(n){
 }
 
 function cartTotal(){
-  return Object.values(cart).reduce((sum,l)=>sum + l.item.price*l.qty, 0);
+  return Object.values(cart).reduce((sum, l) => sum + l.item.price * l.qty, 0);
 }
 function cartCount(){
-  return Object.values(cart).reduce((sum,l)=>sum + l.qty, 0);
+  return Object.values(cart).reduce((sum, l) => sum + l.qty, 0);
 }
 
 function renderCart(){
@@ -556,14 +886,14 @@ function renderCart(){
   const floatBar = document.getElementById("floatBar");
   if(count > 0){
     floatBar.classList.add("show");
-    document.getElementById("fbItems").textContent = count + (count===1 ? " producto" : " productos");
+    document.getElementById("fbItems").textContent = count + " " + (count === 1 ? t().productSingle : t().productPlural);
     document.getElementById("fbTotal").textContent = fmt(total);
   } else {
     floatBar.classList.remove("show");
   }
 
   if(count === 0){
-    body.innerHTML = `<div class="ticket-empty">Todavía no agregaste nada.<br>Elegí algo rico del menú 🔥</div>`;
+    body.innerHTML = `<div class="ticket-empty">${t().emptyCart}</div>`;
     foot.style.display = "none";
     return;
   }
@@ -571,16 +901,17 @@ function renderCart(){
   foot.style.display = "block";
   body.innerHTML = "";
   Object.values(cart).forEach(line => {
+    const itemName = t().items[line.item.id].name;
     const div = document.createElement("div");
     div.className = "cart-line";
     div.innerHTML = `
       <div class="cart-line-info">
-        <div class="name">${line.item.name}</div>
-        <div class="unit">${fmt(line.item.price)} c/u</div>
-        <button class="remove-link" onclick="removeItem('${line.item.id}')">Quitar</button>
+        <div class="name">${itemName}</div>
+        <div class="unit">${fmt(line.item.price)} ${t().unitEach}</div>
+        <button class="remove-link" onclick="removeItem('${line.item.id}')">${t().removeBtn}</button>
       </div>
       <div class="cart-line-right">
-        <div class="cart-line-price">${fmt(line.item.price*line.qty)}</div>
+        <div class="cart-line-price">${fmt(line.item.price * line.qty)}</div>
         <div class="qty-stepper">
           <button onclick="decItem('${line.item.id}')">−</button>
           <span>${line.qty}</span>
@@ -609,25 +940,13 @@ function scrollToMenu(){
 }
 
 /* ============ MODALIDAD DE ENTREGA ============ */
-document.getElementById("deliveryGroup").addEventListener("click", (e)=>{
+document.getElementById("deliveryGroup").addEventListener("click", (e) => {
   const opt = e.target.closest(".radio-opt");
   if(!opt) return;
-  document.querySelectorAll(".radio-opt").forEach(o=>o.classList.remove("active"));
+  document.querySelectorAll(".radio-opt").forEach(o => o.classList.remove("active"));
   opt.classList.add("active");
-  deliveryType = opt.dataset.val;
-  const addrField = document.getElementById("addressField");
-  const addrLabel = addrField.querySelector("label");
-  const addrInput = document.getElementById("custAddress");
-  
-  if(deliveryType === "Envío a domicilio"){
-    addrLabel.textContent = "Dirección de envío";
-    addrInput.placeholder = "Ej: Av. Arce #1234, Zona Sopocachi";
-    addrInput.required = true;
-  } else {
-    addrLabel.textContent = "Número de mesa (o para llevar)";
-    addrInput.placeholder = "Ej: Mesa 4 / Para llevar";
-    addrInput.required = false;
-  }
+  deliveryMode = opt.dataset.type;
+  updateAddressFieldLabels();
 });
 
 /* ============ GENERADOR DE PDF TÉRMICO (ESTILO POS / NCR 80MM) ============ */
@@ -646,26 +965,26 @@ function generateThermalPDF(order){
 
   doc.setFont("courier", "bold");
   doc.setFontSize(12);
-  doc.text("KO - SALTEADOS JAPONESES", 40, 10, { align: "center" });
+  doc.text(t().pdfBrand, 40, 10, { align: "center" });
 
   doc.setFont("courier", "normal");
   doc.setFontSize(8.5);
-  doc.text("COMANDA DE COCINA / TICKET POS", 40, 15, { align: "center" });
+  doc.text(t().pdfSub, 40, 15, { align: "center" });
   doc.text("------------------------------------------", 40, 19, { align: "center" });
 
   doc.setFont("courier", "bold");
   doc.setFontSize(10);
-  doc.text(`ORDEN: #${order.orderNum}`, 6, 25);
+  doc.text(`${t().pdfOrder}: #${order.orderNum}`, 6, 25);
 
   doc.setFont("courier", "normal");
   doc.setFontSize(8.5);
-  doc.text(`FECHA: ${order.dateStr}  HORA: ${order.timeStr}`, 6, 30);
-  doc.text(`CLIENTE: ${order.name.toUpperCase()}`, 6, 35);
-  doc.text(`MODALIDAD: ${order.deliveryType.toUpperCase()}`, 6, 40);
+  doc.text(`${t().pdfDate}: ${order.dateStr}  ${t().pdfTime}: ${order.timeStr}`, 6, 30);
+  doc.text(`${t().pdfClient}: ${order.name.toUpperCase()}`, 6, 35);
+  doc.text(`${t().pdfMode}: ${order.deliveryLabel.toUpperCase()}`, 6, 40);
 
   let y = 45;
   if(order.address){
-    const addrLines = doc.splitTextToSize(`DETALLE: ${order.address.toUpperCase()}`, 68);
+    const addrLines = doc.splitTextToSize(`${t().pdfDetail}: ${order.address.toUpperCase()}`, 68);
     doc.text(addrLines, 6, y);
     y += addrLines.length * 4.5;
   }
@@ -674,7 +993,8 @@ function generateThermalPDF(order){
   y += 5;
 
   doc.setFont("courier", "bold");
-  doc.text("CANT  DESCRIPCION                IMPORTE", 6, y);
+  const headerCol = `${t().pdfColQty.padEnd(6, " ")}${t().pdfColDesc.padEnd(23, " ")}${t().pdfColAmt.padStart(8, " ")}`;
+  doc.text(headerCol, 6, y);
   y += 4;
   doc.setFont("courier", "normal");
   doc.text("------------------------------------------", 40, y, { align: "center" });
@@ -693,7 +1013,7 @@ function generateThermalPDF(order){
 
   doc.setFont("courier", "bold");
   doc.setFontSize(11);
-  doc.text("TOTAL A PAGAR:", 6, y);
+  doc.text(t().pdfTotalPay, 6, y);
   doc.text(`${order.total} Bs`, 74, y, { align: "right" });
   y += 6;
 
@@ -702,46 +1022,52 @@ function generateThermalPDF(order){
   if(order.notes){
     doc.text("------------------------------------------", 40, y, { align: "center" });
     y += 4.5;
-    const noteLines = doc.splitTextToSize(`NOTAS: ${order.notes.toUpperCase()}`, 68);
+    const noteLines = doc.splitTextToSize(`${t().pdfNotes}: ${order.notes.toUpperCase()}`, 68);
     doc.text(noteLines, 6, y);
     y += noteLines.length * 4.5 + 2;
   }
 
   doc.text("==========================================", 40, y, { align: "center" });
   y += 5;
-  doc.text("GRACIAS POR SU PREFERENCIA", 40, y, { align: "center" });
+  doc.text(t().pdfThanks, 40, y, { align: "center" });
 
   doc.save(`Orden-KO-${order.orderNum}.pdf`);
 }
 
 /* ============ CONFIRMAR ORDEN / TICKET ============ */
-document.getElementById("checkoutForm").addEventListener("submit", (e)=>{
+document.getElementById("checkoutForm").addEventListener("submit", (e) => {
   e.preventDefault();
   if(cartCount() === 0) return;
 
   const nowObj = new Date();
+  const deliveryLabel = deliveryMode === "delivery" ? t().optDelivery : t().optLocal;
+
   const orderData = {
     orderNum: Math.floor(1000 + Math.random() * 9000),
     dateStr: nowObj.toLocaleDateString("es-BO"),
     timeStr: nowObj.toLocaleTimeString("es-BO", {hour: '2-digit', minute:'2-digit'}),
     name: document.getElementById("custName").value.trim(),
-    deliveryType: deliveryType,
+    deliveryLabel: deliveryLabel,
     address: document.getElementById("custAddress").value.trim(),
     notes: document.getElementById("custNotes").value.trim(),
-    items: Object.values(cart).map(l => ({ name: l.item.name, qty: l.qty, price: l.item.price })),
+    items: Object.values(cart).map(l => ({
+      name: t().items[l.item.id].name,
+      qty: l.qty,
+      price: l.item.price
+    })),
     total: cartTotal()
   };
 
   lastOrderData = orderData;
 
-  document.getElementById("ticketNumber").textContent = `ORDEN #${orderData.orderNum} · ${orderData.timeStr}`;
+  document.getElementById("ticketNumber").textContent = `${t().tktOrder} #${orderData.orderNum} · ${orderData.timeStr}`;
   
   let metaHTML = `
-    <strong>CLIENTE:</strong> ${orderData.name.toUpperCase()}<br>
-    <strong>MODALIDAD:</strong> ${orderData.deliveryType.toUpperCase()}
+    <strong>${t().tktClient}:</strong> ${orderData.name.toUpperCase()}<br>
+    <strong>${t().tktMode}:</strong> ${orderData.deliveryLabel.toUpperCase()}
   `;
-  if(orderData.address) metaHTML += `<br><strong>DETALLE:</strong> ${orderData.address.toUpperCase()}`;
-  if(orderData.notes) metaHTML += `<br><strong>NOTAS:</strong> ${orderData.notes.toUpperCase()}`;
+  if(orderData.address) metaHTML += `<br><strong>${t().tktDetail}:</strong> ${orderData.address.toUpperCase()}`;
+  if(orderData.notes) metaHTML += `<br><strong>${t().tktNotes}:</strong> ${orderData.notes.toUpperCase()}`;
   document.getElementById("ticketMeta").innerHTML = metaHTML;
 
   let itemsHTML = "";
@@ -774,7 +1100,8 @@ function finishOrder(){
   document.getElementById("checkoutForm").reset();
 }
 
-renderCart();
+/* Init */
+setLanguage("es");
 </script>
 </body>
 </html>
